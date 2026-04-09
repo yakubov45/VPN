@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    volumes:
+      - /etc/wireguard:/etc/wireguard
+      - .:/app
+    environment:
+      - NODE_ENV=production
+    privileged: true # Required for WireGuard interaction
+
+  client:
+    build: ./client
+    ports:
+      - "80:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
