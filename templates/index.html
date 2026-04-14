@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus VPN | Secure Global Relay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 overflow-hidden">
+
+    <div id="loading"
+        class="absolute inset-0 flex items-center justify-center bg-gray-900 z-50 transition-opacity duration-500">
+        <i class="fas fa-shield-alt text-6xl text-indigo-500 animate-pulse"></i>
+    </div>
+
+    <div class="container mx-auto max-w-5xl relative z-10 w-full space-y-8 animate-fade-in" style="display: none;"
+        id="app-content">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-indigo-600 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.5)]">
+                    <i class="fas fa-lock text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">Nexus VPN</h1>
+                    <p class="text-gray-400 text-sm">Military-Grade Encryption Platform</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="status-badge"
+                    class="px-4 py-1 rounded-full text-sm font-semibold uppercase border bg-gray-800 text-gray-400 border-gray-600">
+                    Checking...
+                </div>
+                <button onclick="fetchStatus()" class="hover:bg-white/10 p-2 rounded-full transition">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Status Card -->
+            <div class="glass-card col-span-2 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 text-indigo-400">
+                        <i class="fas fa-server"></i>
+                        <span class="text-sm font-semibold uppercase tracking-wider">Server Status</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium mb-1">Public IP</p>
+                            <p class="text-2xl font-mono font-bold" id="public-ip">N/A</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium mb-1">Interface</p>
+                            <p class="text-2xl font-mono font-bold" id="interface-name">wg0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/10 flex gap-4">
+                    <button id="setup-btn" onclick="runSetup()"
+                        class="flex-1 bg-white text-black hover:bg-gray-200 py-3 rounded-xl font-bold uppercase text-sm tracking-wider transition disabled:opacity-50">
+                        Start Global Relay
+                    </button>
+                    <button onclick="fetchConfig()"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-bold uppercase text-sm tracking-wider transition flex items-center justify-center gap-2">
+                        <i class="fas fa-download"></i> Generate Config
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="glass-card bg-indigo-600/10 border-indigo-500/20">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 text-indigo-400">
+                        <i class="fas fa-globe"></i>
+                        <span class="text-sm font-semibold uppercase tracking-wider">Active Region</span>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold">AWS Cloud</p>
+                        <p class="text-gray-400 text-sm mt-1">us-east-1 (N. Virginia)</p>
+                    </div>
+                    <div class="pt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <span class="flex items-center gap-1"><i class="fas fa-microchip"></i> t3.micro</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-shield-alt"></i> WireGuard</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Config Section -->
+        <div id="config-section" class="glass-card hidden animate-slide-up">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-bold mb-2">Device Configuration</h3>
+                        <p class="text-gray-400 text-sm">Download or scan this QR code with the WireGuard app on your
+                            mobile device.</p>
+                    </div>
+                    <div
+                        class="bg-black/50 rounded-xl p-4 font-mono text-xs max-h-48 overflow-y-auto border border-white/5">
+                        <pre id="config-content" class="whitespace-pre-wrap"></pre>
+                    </div>
+                    <button onclick="downloadConfig()"
+                        class="w-full bg-white/10 hover:bg-white/20 py-3 rounded-xl font-bold uppercase text-sm tracking-wider transition flex items-center justify-center gap-2 border border-white/10">
+                        <i class="fas fa-download"></i> Download .conf File
+                    </button>
+                </div>
+                <div class="flex flex-col items-center gap-4">
+                    <img id="qr-code" src="" alt="WireGuard QR Code"
+                        class="w-64 h-64 rounded-xl border-8 border-white bg-white p-2" />
+                    <p class="text-xs text-indigo-400 font-semibold tracking-widest uppercase">Safe & Encrypted</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-xs">
+            <p>© 2026 Nexus VPN Systems. Built for secure global communication.</p>
+        </footer>
+    </div>
+
+    <!-- Background effects -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[120px]"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
